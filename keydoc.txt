@@ -1,0 +1,11 @@
+package ebiten // import "github.com/hajimehoshi/ebiten/v2"
+
+type Key int
+    A Key represents a keyboard key. These keys represent physical keys of US
+    keyboard. For example, KeyQ represents Q key on US keyboards and ' (quote)
+    key on Dvorak keyboards.
+
+const KeyA Key = Key(ui.KeyA) ...
+func (k Key) MarshalText() ([]byte, error)
+func (k Key) String() string
+func (k *Key) UnmarshalText(text []byte) error

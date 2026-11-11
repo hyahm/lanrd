@@ -1,0 +1,22 @@
+# lanrd 被控端配置
+# 配置项可被环境变量覆盖: LANRD_ADDR / LANRD_TOKEN / LANRD_FPS /
+# LANRD_TILE / LANRD_QUALITY / LANRD_BLOCK_LOCAL
+
+server:
+  # 监听地址，控制端通过 <本机内网IP>:7080 连接
+  addr: 0.0.0.0:7080
+  # 连接口令，为空表示不校验(仅建议纯内网环境使用)
+  token: ""
+
+capture:
+  # 采集帧率 5~60
+  fps: 30
+  # 脏检测分块尺寸 32/64/128
+  tile: 64
+  # JPEG 质量 30~95，内网建议 75~90(越高文字越清晰、CPU 略增)
+  quality: 80
+
+input:
+  # true: 会话期间默认屏蔽远端机器前的物理键鼠(控制端可按 F9 动态切换)
+  # false: 双方随时抢占操作(默认，远端用户与控制端同时有效)
+  blockLocal: false
