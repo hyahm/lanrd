@@ -39,6 +39,7 @@ var (
 	procGetMessage        = modUser32.NewProc("GetMessageW")
 	procPostThreadMessage = modUser32.NewProc("PostThreadMessageW")
 	procGetCurrentThread  = modKernel32.NewProc("GetCurrentThreadId")
+	procFreeConsole       = modKernel32.NewProc("FreeConsole")
 )
 
 // GetSystemMetrics 常量。
@@ -243,6 +244,9 @@ func GetCurrentThreadId() uint32 {
 	r, _, _ := procGetCurrentThread.Call()
 	return uint32(r)
 }
+
+// FreeConsole 释放控制台(用于 -quiet 模式隐藏控制台窗口)。
+func FreeConsole() { procFreeConsole.Call() }
 
 // LockOSThreadForHooks 提示调用方本函数所在 goroutine 需要锁定 OS 线程。
 // 钩子与消息泵必须运行在安装钩子的同一线程上。

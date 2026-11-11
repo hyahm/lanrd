@@ -22,12 +22,16 @@ const (
 	idOK     = 1 // 对话框回车
 	idCancel = 2 // 对话框 Esc
 
-	wsOverlappedWindow = 0x00CF0000
-	wsChild            = 0x40000000
-	wsVisible          = 0x10000000
-	wsTabStop          = 0x00010000
-	wsBorder           = 0x00800000
-	esAutoHscscroll    = 0x0080
+	bmSetcheck     = 0x00F1
+	bstChecked     = 1
+	bsAutoCheckbox = 0x0003
+
+	wsFixedDialog   = 0x00CA0000 // 标题栏+系统菜单+最小化，无边框缩放，不可拉伸
+	wsChild         = 0x40000000
+	wsVisible       = 0x10000000
+	wsTabStop       = 0x00010000
+	wsBorder        = 0x00800000
+	esAutoHscscroll = 0x0080
 
 	colorBtnface = 16
 	idcArrow     = 32512

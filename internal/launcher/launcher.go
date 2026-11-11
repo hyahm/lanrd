@@ -19,6 +19,7 @@ const (
 	idBtnServer = 1001
 	idBtnClient = 1002
 	idLblStatus = 1003
+	idChkAuto   = 1004
 	idEdtIP     = 1011
 	idEdtPort   = 1012
 	idEdtToken  = 1013
@@ -35,6 +36,7 @@ var g struct {
 	hPort      uintptr
 	hToken     uintptr
 	hStatus    uintptr
+	hAuto      uintptr
 	status     *statusStore
 	srv        *agent.Agent // 进程内被控端
 	serverOn   bool
@@ -50,6 +52,8 @@ func wndProc(hwnd uintptr, msg uint32, wp, lp uintptr) uintptr {
 				startServer()
 			case idBtnClient, idOK:
 				startClient() // 回车=连接
+			case idChkAuto:
+				toggleAutoStart()
 			case idCancel:
 				procPostMessageW.Call(hwnd, wmClose, 0, 0) // Esc=关闭
 			}
@@ -107,14 +111,14 @@ func registerClass() error {
 	return nil
 }
 
-// createMainUI 创建主窗口与全部控件。
+// createMainUI 创建主窗口与全部控件(固定尺寸，不可拉伸)。
 func createMainUI() error {
 	var rc RECT
-	procAdjustWindowRect.Call(uintptr(unsafe.Pointer(&rc)), wsOverlappedWindow, 0)
-	const cw, ch = 402, 222
+	procAdjustWindowRect.Call(uintptr(unsafe.Pointer(&rc)), wsFixedDialog, 0)
+	const cw, ch = 402, 248
 	ww, wh := cw+rc.Right-rc.Left, ch+rc.Bottom-rc.Top
 	hwnd, err := createWindowEx("lanrdLauncher", "lanrd - 内网远程桌面",
-		wsOverlappedWindow, -1, -1, int32(ww), int32(wh), 0, 0)
+		wsFixedDialog, -1, -1, int32(ww), int32(wh), 0, 0)
 	if err != nil {
 		return fmt.Errorf("lanrd/launcher: 创建窗口失败: %w", err)
 	}
@@ -165,7 +169,13 @@ func createControls() error {
 	if g.hClientBtn, err = ctl("BUTTON", "连接(控制端)", wsTabStop, 208, 152, 174, 34, idBtnClient); err != nil {
 		return err
 	}
+	if g.hAuto, err = ctl("BUTTON", "开机自动启动服务端(登录时后台运行)", bsAutoCheckbox|wsTabStop, 20, 196, 300, 22, idChkAuto); err != nil {
+		return err
+	}
 	g.status = &statusStore{hwnd: g.hStatus}
+	if autoStartEnabled() {
+		procSendMessageW.Call(g.hAuto, bmSetcheck, bstChecked, 0)
+	}
 	return nil
 }
 

@@ -100,6 +100,27 @@ func stopServer() {
 	setWindowText(g.hServerBtn, "启动服务端(被控)")
 }
 
+// toggleAutoStart 复选框切换开机自启(写/删 HKCU Run 注册表)。
+func toggleAutoStart() {
+	checked := checkboxChecked(g.hAuto)
+	if err := setAutoStart(checked); err != nil {
+		g.status.logf("设置自启失败: %v", err)
+		return
+	}
+	if checked {
+		cmd, _ := autoStartCommand()
+		g.status.logf("已开启开机自启(下次登录生效): %s", cmd)
+	} else {
+		g.status.logf("已关闭开机自启")
+	}
+}
+
+// checkboxChecked 读取复选框选中状态。
+func checkboxChecked(h uintptr) bool {
+	r, _, _ := procSendMessageW.Call(h, 0x00F0, 0, 0) // BM_GETCHECK
+	return r == bstChecked
+}
+
 // startClient 校验输入并拉起控制端子进程。禁止连接本机：
 // 本机运行着服务端时，客户端连自己会形成"无限自嵌套画面"的死循环。
 func startClient() {

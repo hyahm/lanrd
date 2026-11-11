@@ -9,14 +9,19 @@ import (
 
 	"lanrd/internal/agent"
 	"lanrd/internal/config"
+	"lanrd/internal/winapi"
 )
 
 // runAgent 启动被控端。
 func runAgent(args []string) {
 	fs := flag.NewFlagSet("agent", flag.ExitOnError)
 	cfgPath := fs.String("config", config.DefaultPath(), "配置文件路径")
+	quiet := fs.Bool("quiet", false, "后台静默运行(释放控制台窗口，用于开机自启)")
 	_ = fs.Parse(args)
 
+	if *quiet {
+		winapi.FreeConsole()
+	}
 	log := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	cfg, err := config.Load(*cfgPath)
 	if err != nil {
