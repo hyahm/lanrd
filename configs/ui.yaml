@@ -1,0 +1,12 @@
+connect:
+    ip: 172.24.60.225
+    port: "7080"
+    token: ""
+proxy:
+    maps:
+        - local: 6000
+          remote: 192.168.1.61:3000
+          enabled: true
+        - local: 7000
+          remote: 192.168.1.61:3000
+          enabled: false

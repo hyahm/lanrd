@@ -6,12 +6,12 @@ import (
 	"fmt"
 	"os"
 
-	"lanrd/internal/launcher"
+	"lanrd/internal/ui"
 )
 
 // runDefault Windows 下无参数启动图形界面。
 func runDefault() {
-	if err := launcher.Run(); err != nil {
+	if err := ui.Run(); err != nil {
 		fmt.Fprintln(os.Stderr, "lanrd:", err)
 		os.Exit(1)
 	}

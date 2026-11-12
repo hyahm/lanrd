@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"lanrd/internal/proto"
+	"lanrd/internal/proxy"
 )
 
 // Status 被控端广播的抢占状态。
@@ -44,6 +45,8 @@ type Client struct {
 
 	tiles      chan []byte // JPEG 分块解码任务队列
 	decodeDone chan struct{}
+
+	proxySrv *proxy.ClientProxy // 内网代理(EnableProxy 按需创建)
 }
 
 // decodeWorkers 并行解码工作协程数。
@@ -191,6 +194,8 @@ func (c *Client) readLoop() {
 		case proto.MsgPong:
 			ts, _ := proto.DecodePing(m.Body)
 			c.rtt.Store(time.Now().UnixMilli() - int64(ts))
+		case proto.MsgProxyAck, proto.MsgProxyDataS, proto.MsgProxyCloseS:
+			c.dispatchProxy(m)
 		}
 	}
 }

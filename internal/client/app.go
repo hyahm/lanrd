@@ -243,6 +243,9 @@ func (a *App) Draw(screen *ebiten.Image) {
 func (a *App) drawHud(screen *ebiten.Image) {
 	w, h := a.cl.Size()
 	lines := []string{fmt.Sprintf("RTT %dms  %dx%d  F9=lock F11=fullscreen", a.cl.RTT(), w, h)}
+	if s := a.cl.ProxySummary(); s != "" {
+		lines = append(lines, "PROXY "+s)
+	}
 	st := a.cl.Status()
 	if st.Locked {
 		lines = append(lines, "[Remote input LOCKED - F9 to unlock]")

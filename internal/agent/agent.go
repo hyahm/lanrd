@@ -19,6 +19,7 @@ import (
 	"lanrd/internal/config"
 	"lanrd/internal/inject"
 	"lanrd/internal/proto"
+	"lanrd/internal/proxy"
 )
 
 // keyframeInterval 关键帧全量刷新间隔。TCP 传输可靠、脏块不丢，
@@ -35,6 +36,9 @@ type session struct {
 	tiler   *codec.Tiler
 	done    chan struct{}
 	lastKey time.Time
+
+	px   *proxy.AgentProxy // 内网代理通道(按需创建，pxMu 保护)
+	pxMu sync.Mutex
 }
 
 // Agent 被控端服务。
@@ -293,6 +297,8 @@ func (a *Agent) reader(s *session) {
 		case proto.MsgPing:
 			ts, _ := proto.DecodePing(m.Body)
 			a.send(s, &proto.Message{Type: proto.MsgPong, Body: proto.EncodePing(ts)})
+		case proto.MsgProxyOpen, proto.MsgProxyData, proto.MsgProxyClose:
+			a.proxyMsg(s, m)
 		}
 	}
 }
@@ -304,6 +310,9 @@ func (a *Agent) closeSession(s *session) {
 		a.cur = nil
 	}
 	a.mu.Unlock()
+	if px := s.takeProxy(); px != nil {
+		px.Close() // 断开全部代理通道
+	}
 	select {
 	case <-s.done:
 	default:
